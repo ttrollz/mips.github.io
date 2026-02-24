@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
 app = Flask(__name__)
+app.secret_key = 'insanely-super-secret-key'
+
 
 #config database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_q7gRM2AFdLlJ@ep-crimson-glitter-ag5fi36n-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
@@ -30,9 +32,32 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)        
+
+#Login page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    msg = ''
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Find the user by their username
+        user = User.query.filter_by(username=username).first()
+        
+        # If the user exists AND the password matches the hash
+        if user and user.check_password(password):
+            return f"Welcome back, {username}! You are logged in."
+        else:
+            return "Error: Invalid username or password."
+
+    # Show the login form
+    return render_template('login.html', msg = msg)
+
 #Register page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    msg = ''
+
     # If the user clicks "Submit" on the form, it sends a POST request
     if request.method == 'POST':
         # Grab the data from the form
@@ -52,39 +77,8 @@ def register():
         return f"Success! User '{username}' has been registered."
         
     # If it's a GET request, just show them the blank HTML form
-    return '''
-        <h2>Register a New Account</h2>
-        <form method="POST">
-            Username: <input type="text" name="username"><br><br>
-            Password: <input type="password" name="password"><br><br>
-            <input type="submit" value="Register">
-        </form>
-    '''
-#Login page
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        # Find the user by their username
-        user = User.query.filter_by(username=username).first()
-        
-        # If the user exists AND the password matches the hash
-        if user and user.check_password(password):
-            return f"Welcome back, {username}! You are logged in."
-        else:
-            return "Error: Invalid username or password."
+    return render_template('register.html', msg = msg)
 
-    # Show the login form
-    return '''
-        <h2>Login</h2>
-        <form method="POST">
-            Username: <input type="text" name="username"><br><br>
-            Password: <input type="password" name="password"><br><br>
-            <input type="submit" value="Login">
-        </form>
-    '''
 
 @app.route('/')
 
