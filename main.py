@@ -8,7 +8,7 @@ import uuid
 app = Flask(__name__)
 
 #config database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:ENTERPASSWORDHERE@localhost/MIPS'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_q7gRM2AFdLlJ@ep-crimson-glitter-ag5fi36n-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 #init database
